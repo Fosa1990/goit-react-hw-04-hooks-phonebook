@@ -1,8 +1,79 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Section from '../section';
 import Container from '../container';
 import Title from '../title';
+import { NAME, NUMBER } from '../../helpers/constants';
+
+export default function Form({ onSubmit }) {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const handleInputChange = event => {
+    const { name, value } = event.currentTarget;
+
+    if (name === NAME) setName(value);
+    if (name === NUMBER) setNumber(value);
+  };
+
+  const handleFormSubmit = event => {
+    event.preventDefault();
+
+    onSubmit({ name: name, number: number });
+    handleReset();
+  };
+
+  const handleReset = () => {
+    setName('');
+    setNumber('');
+  };
+
+  return (
+    <Section>
+      <Container>
+        <Title title="Phonebook" />
+        <MainForm autoComplete="off" onSubmit={handleFormSubmit}>
+          <FormLabel>
+            Name
+            <FormInput
+              type="text"
+              name="name"
+              value={name}
+              placeholder="Enter fullname"
+              onChange={handleInputChange}
+              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+              required
+            />
+          </FormLabel>
+
+          <FormLabel>
+            Number
+            <FormInput
+              type="tel"
+              name="number"
+              value={number}
+              placeholder="Enter phone number"
+              onChange={handleInputChange}
+              minLength="7"
+              maxLength="9"
+              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+              required
+            />
+          </FormLabel>
+
+          <FormAddContactButton
+            type="submit"
+            disabled={name === '' || number === ''}
+          >
+            Add contact
+          </FormAddContactButton>
+        </MainForm>
+      </Container>
+    </Section>
+  );
+}
 
 export const MainForm = styled.form`
   padding: 5px;
@@ -53,81 +124,3 @@ export const FormInput = styled.input`
   width: 100%;
   border-radius: 10px;
 `;
-
-class Form extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
-
-  handleInputChange = event => {
-    const { name, value } = event.currentTarget;
-    this.setState({ [name]: value });
-  };
-
-  handleFormSubmit = event => {
-    event.preventDefault();
-
-    this.props.onSubmit(this.state);
-    this.handleReset();
-  };
-
-  handleReset = () => {
-    this.setState({
-      name: '',
-      number: '',
-    });
-  };
-
-  render() {
-    const { name, number } = this.state;
-
-    return (
-      <Section>
-        <Container>
-          <Title title="Phonebook" />
-          <MainForm autoComplete="off" onSubmit={this.handleFormSubmit}>
-            <FormLabel>
-              Name
-              <FormInput
-                type="text"
-                name="name"
-                value={name}
-                placeholder="Enter fullname"
-                onChange={this.handleInputChange}
-                pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-                title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-                required
-              />
-            </FormLabel>
-
-            <FormLabel>
-              Number
-              <FormInput
-                type="tel"
-                name="number"
-                value={number}
-                placeholder="Enter phone number"
-                onChange={this.handleInputChange}
-                minLength="7"
-                maxLength="9"
-                pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-                title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-                required
-              />
-            </FormLabel>
-
-            <FormAddContactButton
-              type="submit"
-              disabled={name === '' || number === ''}
-            >
-              Add contact
-            </FormAddContactButton>
-          </MainForm>
-        </Container>
-      </Section>
-    );
-  }
-}
-
-export default Form;
