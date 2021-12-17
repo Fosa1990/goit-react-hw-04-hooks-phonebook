@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useState, useMemo } from 'react';
 import Section from './components/section';
 import Container from './components/container';
 import Title from './components/title';
@@ -8,42 +8,24 @@ import Contacts from './components/contacts';
 import dataGenerator from './helpers/dataGenerator';
 import contactsData from './data/contacts.json';
 import { nanoid } from 'nanoid';
+import useLocalStorage from './hooks/useLocalStorage';
 
-export class App extends Component {
-  state = {
-    contacts: dataGenerator(contactsData),
-    filter: '',
-  };
+export default function APP() {
+  const [contacts, setContacts] = useLocalStorage(
+    'contacts',
+    dataGenerator(contactsData),
+  );
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
-
-    if (parsedContacts) this.setState({ contacts: parsedContacts });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const nextContacts = this.state.contacts;
-    const prevContacts = prevState.contacts;
-
-    if (nextContacts !== prevContacts)
-      localStorage.setItem('contacts', JSON.stringify(nextContacts));
-  }
-
-  formSubmitHandler = data => {
-    const { contacts } = this.state;
-    const isContactValid = this.validateContact(data, contacts);
-
+  const formSubmitHandler = data => {
+    const isContactValid = validateContact(data, contacts);
     if (isContactValid) {
       data.id = nanoid();
-
-      this.setState(({ contacts }) => ({
-        contacts: [data, ...contacts],
-      }));
+      setContacts(contacts => [data, ...contacts]);
     }
   };
 
-  validateContact = (data, contacts) => {
+  const validateContact = (data, contacts) => {
     if (contacts.some(({ name }) => name === data.name)) {
       alert(`${data.name} is already in contacts!`);
       return false;
@@ -53,47 +35,38 @@ export class App extends Component {
     } else return true;
   };
 
-  deleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
+  const deleteContact = id => {
+    setContacts(state => state.filter(contact => contact.id !== id));
   };
 
-  handleSearch = event => {
-    this.setState({
-      filter: event.currentTarget.value,
-    });
+  const handleSearch = event => {
+    setFilter(event.currentTarget.value);
   };
 
-  getFiltredContacts() {
-    const { contacts, filter } = this.state;
-    const lowerCaseFilter = filter.toLowerCase();
-    return contacts.filter(person =>
-      person.name.toLowerCase().includes(lowerCaseFilter),
-    );
-  }
+  const filteredContacts = useMemo(() => {
+    const getFiltredContacts = contacts => {
+      const lowerCaseFilter = filter.toLowerCase();
+      return contacts.filter(person =>
+        person.name.toLowerCase().includes(lowerCaseFilter),
+      );
+    };
+    return getFiltredContacts(contacts);
+  }, [contacts, filter]);
 
-  render() {
-    const { filter } = this.state;
-    const filteredContacts = this.getFiltredContacts();
+  return (
+    <Fragment>
+      <Form onSubmit={formSubmitHandler} />
 
-    return (
-      <Fragment>
-        <Form onSubmit={this.formSubmitHandler} />
-
-        <Section>
-          <Container>
-            <Title title="Contacts" />
-            <Filter value={filter} onChange={this.handleSearch} />
-            <Contacts
-              contacts={filteredContacts}
-              onDeleteButtonClick={this.deleteContact}
-            />
-          </Container>
-        </Section>
-      </Fragment>
-    );
-  }
+      <Section>
+        <Container>
+          <Title title="Contacts" />
+          <Filter value={filter} onChange={handleSearch} />
+          <Contacts
+            contacts={filteredContacts}
+            onDeleteButtonClick={deleteContact}
+          />
+        </Container>
+      </Section>
+    </Fragment>
+  );
 }
-
-export default App;
