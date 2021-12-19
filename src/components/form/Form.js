@@ -1,33 +1,27 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import Section from '../section';
 import Container from '../container';
 import Title from '../title';
 import { NAME, NUMBER } from '../../helpers/constants';
-
+import Button from '../button';
 export default function Form({ onSubmit }) {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-
   const handleInputChange = event => {
     const { name, value } = event.currentTarget;
-
     if (name === NAME) setName(value);
     if (name === NUMBER) setNumber(value);
   };
-
   const handleFormSubmit = event => {
     event.preventDefault();
-
     onSubmit({ name, number });
     handleReset();
   };
-
   const handleReset = () => {
     setName('');
     setNumber('');
   };
-
   return (
     <Section>
       <Container>
@@ -46,7 +40,6 @@ export default function Form({ onSubmit }) {
               required
             />
           </FormLabel>
-
           <FormLabel>
             Number
             <FormInput
@@ -62,62 +55,43 @@ export default function Form({ onSubmit }) {
               required
             />
           </FormLabel>
-
-          <FormAddContactButton
+          <Button
+            content="Add contact"
             type="submit"
             disabled={name === '' || number === ''}
-          >
-            Add contact
-          </FormAddContactButton>
+          />
         </MainForm>
       </Container>
     </Section>
   );
 }
-
 export const MainForm = styled.form`
   padding: 5px;
   margin: 0 auto;
   width: 250px;
   font-family: var(--font);
-`;
-
-export const FormAddContactButton = styled.button`
-  margin: 0;
-  width: 100%;
-  border: 1px solid rgb(255, 252, 252);
-  box-shadow: 0.7px 0.7px 0.75px rgb(173, 172, 172);
-  border-radius: 10px;
-  background-color: rgb(245, 250, 245);
-  padding: 5px 20px;
-
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 250ms ease-in;
-
-  :hover {
-    cursor: pointer;
-    color: var(--white);
-    background-color: var(--green);
-    border: 1px solid var(--blue);
-  }
-
-  :disabled:hover {
-    cursor: not-allowed;
-    color: var(--red);
-    background-color: var(--white);
-    border: 1px solid var(--red);
+  button {
+    margin: 0;
+    width: 100%;
+    padding: 5px 20px;
+    :hover {
+      background-color: var(--green);
+      border: 1px solid var(--blue);
+    }
+    :disabled:hover {
+      cursor: not-allowed;
+      color: var(--red);
+      background-color: var(--white);
+      border: 1px solid var(--red);
+    }
   }
 `;
-
 export const FormLabel = styled.label`
   margin: 0 0 2px 0;
   font-family: var(--font);
   font-size: 18px;
   font-weight: 600;
 `;
-
 export const FormInput = styled.input`
   padding: 5px 20px;
   margin-bottom: 20px;

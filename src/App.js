@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Section from './components/section';
 import Container from './components/container';
 import Title from './components/title';
@@ -9,14 +9,10 @@ import dataGenerator from './helpers/dataGenerator';
 import contactsData from './data/contacts.json';
 import { nanoid } from 'nanoid';
 import useLocalStorage from './hooks/useLocalStorage';
-
+const defaultContacts = dataGenerator(contactsData);
 export default function APP() {
-  const [contacts, setContacts] = useLocalStorage(
-    'contacts',
-    dataGenerator(contactsData),
-  );
+  const [contacts, setContacts] = useLocalStorage('contacts', defaultContacts);
   const [filter, setFilter] = useState('');
-
   const formSubmitHandler = data => {
     const isContactValid = validateContact(data, contacts);
     if (isContactValid) {
@@ -24,7 +20,6 @@ export default function APP() {
       setContacts(contacts => [data, ...contacts]);
     }
   };
-
   const validateContact = (data, contacts) => {
     if (contacts.some(({ name }) => name === data.name)) {
       alert(`${data.name} is already in contacts!`);
@@ -34,15 +29,12 @@ export default function APP() {
       return false;
     } else return true;
   };
-
   const deleteContact = id => {
     setContacts(state => state.filter(contact => contact.id !== id));
   };
-
   const handleSearch = event => {
     setFilter(event.currentTarget.value);
   };
-
   const filteredContacts = useMemo(() => {
     const getFiltredContacts = contacts => {
       const lowerCaseFilter = filter.toLowerCase();
@@ -52,11 +44,9 @@ export default function APP() {
     };
     return getFiltredContacts(contacts);
   }, [contacts, filter]);
-
   return (
-    <Fragment>
+    <>
       <Form onSubmit={formSubmitHandler} />
-
       <Section>
         <Container>
           <Title title="Contacts" />
@@ -67,6 +57,6 @@ export default function APP() {
           />
         </Container>
       </Section>
-    </Fragment>
+    </>
   );
 }

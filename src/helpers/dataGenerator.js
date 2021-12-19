@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid';
-
 const DataGenerator = data => {
   return data.map(contacts => {
     contacts.id = nanoid();
@@ -12,5 +11,4 @@ const DataGenerator = data => {
     return contacts;
   });
 };
-
 export default DataGenerator;
